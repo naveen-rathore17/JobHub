@@ -315,10 +315,10 @@ app.get("/applicants/:jobId", auth, async (req, res) => {
   }
 
   const applications = await Application.find({
-    jobId: req.params.jobId,
-  })
-    .populate("userId")
-    .populate("jobId");
+  jobId: new mongoose.Types.ObjectId(req.params.jobId),
+})
+.populate("userId")
+.populate("jobId");
 
   res.render("applicants", { applications });
 });
