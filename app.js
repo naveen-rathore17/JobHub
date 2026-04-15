@@ -157,6 +157,7 @@ app.post("/login", async (req, res) => {
 /* ---------------- ADMIN DASHBOARD ---------------- */
 
 app.get("/admin-dashboard", auth, async (req, res) => {
+
   const user = await User.findById(req.user.id);
 
   if (user.role !== "admin") {
@@ -165,7 +166,26 @@ app.get("/admin-dashboard", auth, async (req, res) => {
 
   const jobs = await Job.find();
 
-  res.render("admin-dashboard", { jobs });
+  // 🔹 All applications
+  const applications = await Application.find();
+
+  // 🔹 Applicants count per job
+  const jobApplicants = {};
+
+  applications.forEach(app => {
+
+    const jobId = app.jobId.toString();
+
+    if(jobApplicants[jobId]){
+      jobApplicants[jobId]++;
+    }else{
+      jobApplicants[jobId] = 1;
+    }
+
+  });
+
+  res.render("admin-dashboard", { jobs, jobApplicants });
+
 });
 
 /* ---------------- POST JOB ---------------- */
