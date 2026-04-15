@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Applications | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@keyframes scaleIn{
+from{transform:scale(.85);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+.animate-scale{
+animation:scaleIn .2s ease;
+}
+</style>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<!-- 🔥 HEADER -->
+<header class="bg-white/90 backdrop-blur border-b sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+<!-- LOGO -->
+<a href="/" class="flex items-center gap-2">
+<img src="/images/logo.svg" alt="JOBHUB Logo" class="w-36 object-contain">
+</a>
+
+
+<!-- NAV LINKS -->
+<nav class="hidden md:flex items-center gap-8 text-gray-700 font-medium">
+
+
+
+<a href="/"
+class="hover:text-indigo-600 transition">
+Home
+</a>
+<a href="/jobs"
+class="hover:text-indigo-600 transition">
+Jobs
+</a>
+
+</nav>
+
+
+<!-- USER SECTION -->
+<div class="flex items-center gap-4">
+
+<!-- USER -->
+<div class="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+
+<span class="text-lg">👤</span>
+
+<span class="text-gray-700 font-medium">
+<%= user.name %>
+</span>
+
+</div>
+
+
+<!-- LOGOUT -->
+<button
+onclick="openLogoutModal()"
+class="border border-red-500 text-red-500 px-4 py-2 rounded-lg font-medium hover:bg-red-500 hover:text-white transition">
+
+Logout
+
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- 🔥 MAIN -->
+<div class="flex-1 max-w-6xl mx-auto px-6 py-10 w-full">
+
+<!-- TITLE -->
+<h1 class="text-3xl font-bold text-center mb-10 text-gray-800">
+My Applications
+</h1>
+
+
+<% if(applications.length === 0){ %>
+
+<!-- EMPTY STATE -->
+<div class="flex flex-col items-center justify-center text-center mt-16">
+
+<div class="text-6xl mb-4">
+📭
+</div>
+
+<h2 class="text-xl font-semibold text-gray-700">
+No Applications Found
+</h2>
+
+<p class="text-gray-500 mt-2 max-w-md">
+You haven't applied for any jobs yet.  
+Explore available opportunities and submit your application to start your career journey.
+</p>
+
+<a href="/jobs"
+class="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition shadow">
+
+Browse Jobs
+
+</a>
+
+</div>
+
+<% } else { %>
+
+<!-- APPLICATION CARDS -->
+<div class="grid md:grid-cols-2 gap-6">
+
+<% applications.forEach(app=>{ %>
+
+<div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+
+<h2 class="text-xl font-semibold text-gray-800">
+💼 <%= app.jobId.title %>
+</h2>
+
+<p class="text-gray-600 mt-1">
+🏢 <%= app.jobId.company %>
+</p>
+
+<p class="text-sm text-gray-500 mt-1">
+📍 <%= app.jobId.location %>
+</p>
+
+<div class="mt-3">
+<span class="
+text-xs px-3 py-1 rounded-full
+<%= app.status === 'Shortlisted' ? 'bg-green-100 text-green-700' :
+app.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+'bg-yellow-100 text-yellow-700' %>
+">
+<%= app.status %>
+</span>
+</div>
+<div class="mt-5">
+
+<div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+
+<span>Applied</span>
+<span>Review</span>
+<span>Result</span>
+
+</div>
+
+<div class="flex items-center">
+
+<!-- Applied -->
+<div class="flex flex-col items-center w-1/3">
+
+<div class="w-4 h-4 rounded-full bg-green-500"></div>
+
+<div class="text-xs mt-1 text-green-600 font-medium">
+Applied
+</div>
+
+</div>
+
+<!-- Line -->
+<div class="flex-1 h-1 bg-gray-300"></div>
+
+
+<!-- Review -->
+<div class="flex flex-col items-center w-1/3">
+
+<% if(app.status === "Pending"){ %>
+
+<div class="w-4 h-4 rounded-full bg-yellow-500"></div>
+
+<div class="text-xs mt-1 text-yellow-600">
+Under Review
+</div>
+
+<% } else { %>
+
+<div class="w-4 h-4 rounded-full bg-green-500"></div>
+
+<div class="text-xs mt-1 text-green-600">
+Reviewed
+</div>
+
+<% } %>
+
+</div>
+
+<!-- Line -->
+<div class="flex-1 h-1 bg-gray-300"></div>
+
+
+<!-- Result -->
+<div class="flex flex-col items-center w-1/3">
+
+<% if(app.status === "Shortlisted"){ %>
+
+<div class="w-4 h-4 rounded-full bg-green-500"></div>
+
+<div class="text-xs mt-1 text-green-600 font-semibold">
+Shortlisted 🎉
+</div>
+
+
+<% } else if(app.status === "Rejected"){ %>
+
+<div class="w-4 h-4 rounded-full bg-red-500"></div>
+
+<div class="text-xs mt-1 text-red-600 font-semibold">
+Rejected
+</div>
+
+
+<% } else { %>
+
+<div class="w-4 h-4 rounded-full bg-gray-300"></div>
+
+<div class="text-xs mt-1 text-gray-400">
+Waiting
+</div>
+
+<% } %>
+
+
+
+</div>
+
+
+</div>
+<% if(app.status === "Shortlisted"){ %>
+<div class="mt-4 bg-green-50 border border-green-200 text-green-800 text-sm p-3 rounded-lg">
+<strong>🎉 Good News!</strong><br>
+Your application has been shortlisted. Our recruitment team will contact you soon for the next stage.
+</div>
+<% } %>
+
+<% if(app.status === "Rejected"){ %>
+
+<div class="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
+🙏 Thank you for taking the time to apply for this position.  
+After careful consideration, we regret to inform you that your application was not selected at this time.  
+We truly appreciate your interest and encourage you to apply for future opportunities.
+</div>
+
+<% } %>
+
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+<% } %>
+
+</div>
+
+
+<!-- 🔥 Logout Modal -->
+<div id="logoutModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+<div class="bg-white rounded-xl shadow-xl p-6 w-96 text-center animate-scale">
+
+<h2 class="text-xl font-semibold text-gray-800">
+Confirm Logout
+</h2>
+
+<p class="text-gray-600 mt-2">
+Are you sure you want to logout from your account?
+</p>
+
+<div class="flex justify-center gap-4 mt-6">
+
+<button 
+onclick="closeLogoutModal()"
+class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+
+Cancel
+
+</button>
+
+<a 
+href="/logout"
+class="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+
+Logout
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- 🔥 FOOTER -->
+<footer class="bg-gray-900 text-gray-400">
+
+<div class="max-w-6xl mx-auto px-6 py-8 text-center">
+
+<p class="text-sm leading-relaxed">
+
+Our recruitment team carefully reviews each application.  
+If your profile matches the job requirements, you will be contacted within **7 working days**.  
+Please ensure that all the information in your resume is **accurate and up to date**.
+
+</p>
+
+<p class="mt-4 text-xs text-gray-500">
+
+© 2026 JobHub • All rights reserved
+
+</p>
+
+</div>
+
+</footer>
+
+
+<script>
+
+function openLogoutModal(){
+document.getElementById("logoutModal").classList.remove("hidden")
+document.getElementById("logoutModal").classList.add("flex")
+}
+
+function closeLogoutModal(){
+document.getElementById("logoutModal").classList.add("hidden")
+}
+
+</script>
+
+</body>
+</html>

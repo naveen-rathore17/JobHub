@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Applicants | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+.fade-up{
+animation:fadeUp .6s ease forwards;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(25px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+</style>
+
+</head>
+
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex flex-col">
+
+<!-- HEADER -->
+<header class="bg-white shadow sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+<a href="/">
+<img
+src="/images/logo.svg"
+alt="JOBHUB Logo"
+class="w-40 object-contain"
+/>
+</a>
+
+<a href="/admin-dashboard"
+class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition shadow">
+Dashboard
+</a>
+
+</div>
+</header>
+
+
+<!-- MAIN -->
+<div class="max-w-6xl mx-auto px-6 py-12 flex-1">
+
+<h1 class="text-4xl font-bold text-center text-gray-800 mb-12 fade-up">
+👥 My Applicants
+</h1>
+
+
+<%
+const validApplicants = applications.filter(app => app.userId);
+%>
+
+
+<!-- NO APPLICANTS -->
+<% if(validApplicants.length === 0){ %>
+
+<div class="text-center mt-20 fade-up">
+
+<div class="text-7xl mb-4">
+📭
+</div>
+
+<h2 class="text-2xl font-semibold text-gray-700">
+No Candidates Applied
+</h2>
+
+<p class="text-gray-500 mt-2">
+There are currently no applicants for this job.
+</p>
+
+</div>
+
+<% } %>
+
+
+<!-- APPLICANT CARDS -->
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+<% validApplicants.forEach(app => { %>
+
+<div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition transform hover:-translate-y-1 fade-up">
+
+<!-- USER -->
+<div class="border-b pb-3 mb-4">
+
+<h2 class="text-lg font-semibold text-gray-800">
+👤 <%= app.userId.name %>
+</h2>
+
+<p class="text-gray-500 text-sm">
+📧 <%= app.userId.email %>
+</p>
+
+</div>
+
+
+<!-- JOB -->
+<!-- JOB INFO -->
+<div class="bg-gray-50 p-4 rounded-lg mb-5">
+
+<p class="text-sm text-gray-500 mb-2 font-medium">
+Applied For
+</p>
+
+<% if(app.jobId){ %>
+
+<h3 class="font-semibold text-gray-800 text-lg">
+💼 <%= app.jobId.title %>
+</h3>
+
+<p class="text-sm text-gray-600 mt-1">
+🏢 <%= app.jobId.company %>
+</p>
+
+<p class="text-sm text-gray-500">
+📍 <%= app.jobId.location %>
+</p>
+
+<p class="text-sm text-gray-500">
+💰 <%= app.jobId.salary %>
+</p>
+
+<% } else { %>
+
+<h3 class="font-semibold text-red-500">
+Job Removed
+</h3>
+
+<% } %>
+
+</div>
+
+
+<!-- ACTION -->
+<div class="space-y-3">
+
+<!-- Resume Button -->
+<a
+href="/uploads/<%= app.resume %>"
+target="_blank"
+class="block text-center bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-500 transition shadow">
+
+View Resume
+
+</a>
+
+<!-- STATUS -->
+<p class="text-sm font-semibold text-gray-700">
+Status: 
+<span class="
+px-2 py-1 rounded text-xs font-semibold
+<%= app.status === 'Shortlisted' ? 'bg-green-100 text-green-700' :
+app.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+'bg-yellow-100 text-yellow-700' %>
+">
+<%= app.status %>
+</span>
+</p>
+
+<!-- ACTION BUTTONS -->
+<div class="flex gap-2">
+
+<a
+href="/update-status/<%= app._id %>/Shortlisted"
+class="flex-1 bg-green-500 text-white text-center py-2 rounded-lg text-sm hover:bg-green-600 transition">
+
+Shortlist
+
+</a>
+
+<a
+href="/update-status/<%= app._id %>/Rejected"
+class="flex-1 bg-red-500 text-white text-center py-2 rounded-lg text-sm hover:bg-red-600 transition">
+
+Reject
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-400">
+
+<div class="max-w-6xl mx-auto px-6 py-8 text-center">
+
+<p class="text-sm leading-relaxed">
+Our hiring team carefully reviews each application. Shortlisted candidates will be contacted within 7 working days.
+</p>
+
+<p class="mt-4 text-xs text-gray-500">
+© 2026 JobHub • Admin Panel
+</p>
+
+</div>
+
+</footer>
+
+</body>
+</html>

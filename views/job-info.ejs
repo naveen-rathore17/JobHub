@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Job Info | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-100">
+
+
+<!-- 🔹 NAVBAR -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+ <a href="/">
+          <img
+            src="/images/logo.svg"
+            alt="JOBHUB Logo"
+            class="w-40 mx-auto object-contain"
+          /></a>
+
+<div class="flex items-center gap-5">
+
+<a href="/admin-dashboard"
+class="text-gray-600 hover:text-blue-600 font-medium transition">
+
+Dashboard
+
+</a>
+
+<a href="/logout"
+class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition shadow">
+
+Logout
+
+</a>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- 🔹 HERO BACKGROUND -->
+<section
+class="relative flex-1 bg-cover bg-center bg-fixed"
+style="background-image:url('https://sb.kaleidousercontent.com/67418/1920x1100/63c21f8da2/bg.png')"
+>
+
+<div class="absolute inset-0 bg-black/60"></div>
+
+<div class="relative max-w-5xl mx-auto px-6 py-16">
+
+
+<!-- 🔹 JOB CARD -->
+<div class="bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl p-10">
+
+<h1 class="text-4xl font-bold text-gray-800 mb-6">
+<%= job.title %>
+</h1>
+
+
+<!-- 🔹 INFO BADGES -->
+<div class="flex flex-wrap gap-4 mb-8">
+
+<span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold">
+🏢 <%= job.company %>
+</span>
+
+<span class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-semibold">
+📍 <%= job.location %>
+</span>
+
+<span class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm font-semibold">
+💰 <%= job.salary %>/year
+</span>
+
+</div>
+
+
+<!-- 🔹 DESCRIPTION -->
+<h2 class="text-2xl font-semibold text-gray-800 mb-3">
+Job Description
+</h2>
+
+<p class="text-gray-700 leading-relaxed text-lg">
+<%= job.description %>
+</p>
+
+
+<!-- 🔹 ACTION BUTTON -->
+<div class="mt-10 text-center ">
+
+<a href="/edit-job/<%= job._id %>"
+class="bg-blue-600 hover:bg-blue-700 text-white px-12 py-3 p rounded-lg font-semibold transition shadow">
+
+Update
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- 🔹 FOOTER -->
+<footer class="bg-gray-900 text-gray-400 text-center py-6">
+
+<p>
+© <%= new Date().getFullYear() %> JobHub. All rights reserved.
+</p>
+
+</footer>
+
+</body>
+</html>

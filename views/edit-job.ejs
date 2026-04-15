@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Edit Job | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="min-h-screen bg-gray-100">
+
+<!-- 🔹 HEADER -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+
+<a href="/">
+          <img
+            src="/images/logo.svg"
+            alt="JOBHUB Logo"
+            class="w-40 mx-auto object-contain"
+          /></a>
+
+
+
+
+
+<a href="/admin-dashboard"
+class="text-gray-600 hover:text-blue-600 font-medium">
+
+Dashboard
+
+</a>
+
+</div>
+
+</header>
+
+
+<!-- 🔹 BACKGROUND -->
+<div 
+class="relative min-h-[90vh] flex items-center justify-center bg-cover bg-center bg-fixed px-6"
+style="background-image:url('https://sb.kaleidousercontent.com/67418/1920x1100/63c21f8da2/bg.png')"
+>
+
+<!-- Overlay -->
+<div class="absolute inset-0 bg-black/50 z-0"></div>
+
+
+<!-- 🔹 FORM CARD -->
+<div class="relative z-10 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl p-10 max-w-2xl w-full">
+
+<h1 class="text-3xl font-bold mb-8 text-gray-800 text-center">
+Edit Job Details
+</h1>
+
+<form action="/edit-job/<%= job._id %>" method="POST" class="space-y-5">
+
+<!-- Job Title -->
+<div>
+<label class="block text-sm font-semibold text-gray-600 mb-1">
+Job Title
+</label>
+
+<input
+name="title"
+value="<%= job.title %>"
+required
+class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+/>
+</div>
+
+<!-- Company -->
+<div>
+<label class="block text-sm font-semibold text-gray-600 mb-1">
+Company
+</label>
+
+<input
+name="company"
+value="<%= job.company %>"
+required
+class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+/>
+</div>
+
+<!-- Location -->
+<div>
+<label class="block text-sm font-semibold text-gray-600 mb-1">
+Location
+</label>
+
+<input
+name="location"
+value="<%= job.location %>"
+required
+class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+/>
+</div>
+
+<!-- Salary -->
+<div>
+<label class="block text-sm font-semibold text-gray-600 mb-1">
+Salary
+</label>
+
+<input
+name="salary"
+value="<%= job.salary %>"
+required
+class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+/>
+</div>
+
+<!-- Description -->
+<div>
+<label class="block text-sm font-semibold text-gray-600 mb-1">
+Job Description
+</label>
+
+<textarea
+name="description"
+rows="10"
+required
+placeholder="Write detailed job description, responsibilities, requirements..."
+class="w-full border border-gray-300 rounded-xl px-4 py-4 text-gray-700 leading-relaxed
+focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm resize-y min-h-[200px]"
+><%= job.description %></textarea>
+<p class="text-xs text-gray-400 mb-2">
+Describe responsibilities, skills required, experience level and job benefits.
+</p>
+</div>
+
+<!-- Button -->
+<div class="pt-4">
+
+<button
+class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow">
+
+Update Job
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>

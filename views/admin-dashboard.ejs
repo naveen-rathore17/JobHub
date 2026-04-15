@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Dashboard | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-100">
+
+<!-- 🔹 NAVBAR -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+<!-- Logo -->
+   <a href="/">
+          <img
+            src="/images/logo.svg"
+            alt="JOBHUB Logo"
+            class="w-40 mx-auto object-contain"
+          /></a>
+
+<!-- Menu -->
+<div class="flex items-center gap-6">
+
+<a href="/post-job"
+class="bg-yellow-400 hover:bg-yellow-500 px-5 py-2 rounded-lg font-semibold transition shadow">
+
+Post Job
+
+</a>
+<a href="/applicants"
+class="text-gray-700 hover:text-blue-600 font-medium transition">
+Applicants
+</a>
+
+<a href="/logout"
+class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition shadow">
+
+Logout
+
+</a>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- 🔹 HERO BG -->
+<section
+class="relative flex-1 bg-cover bg-center bg-fixed"
+style="background-image:url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d')"
+>
+
+<div class="absolute inset-0 bg-black/60"></div>
+
+<div class="relative max-w-7xl mx-auto px-6 py-16">
+
+<h1 class="text-4xl font-bold text-white mb-10">
+Admin Dashboard
+</h1>
+
+
+<!-- 🔹 JOB GRID -->
+<div class="grid md:grid-cols-3 gap-8">
+
+<% jobs.forEach(job=>{ %>
+
+<div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow-lg hover:shadow-2xl transition">
+
+<h2 class="text-xl font-bold text-gray-800">
+<%= job.title %>
+</h2>
+
+<p class="text-gray-600 mt-1">
+<%= job.company %>
+</p>
+
+<p class="text-sm text-gray-500 mt-1">
+<%= job.location %>
+</p>
+
+
+<!-- Buttons -->
+<div class="flex flex-wrap gap-3 mt-5">
+
+<a href="/job-info/<%= job._id %>"
+class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-sm transition">
+
+Info
+
+</a>
+
+<a href="/edit-job/<%= job._id %>"
+class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition">
+
+Edit
+
+</a>
+
+<a href="/delete-job/<%= job._id %>"
+class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition">
+
+Delete
+
+</a>
+
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- 🔹 FOOTER -->
+<footer class="bg-gray-900 text-gray-400 text-center py-6">
+
+<p>
+© <%= new Date().getFullYear() %> JobHub Admin Panel. All rights reserved.
+</p>
+
+</footer>
+
+</body>
+</html>

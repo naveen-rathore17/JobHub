@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= job.title %> | JobHub</title>
+<link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="relative min-h-screen">
+
+<!-- 🔥 BACKGROUND IMAGE -->
+<div class="fixed inset-0 -z-10">
+  <img 
+  src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
+  class="w-full h-full object-cover">
+
+  <!-- DARK OVERLAY -->
+  <div class="absolute inset-0 bg-black/60"></div>
+</div>
+
+<!-- CONTENT -->
+<div class="max-w-5xl mx-auto px-6 py-12">
+
+  <!-- JOB CARD -->
+  <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-8">
+
+    <!-- TITLE -->
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+      <%= job.title %>
+    </h1>
+
+    <p class="text-gray-600 mt-2 text-lg">
+      🏢 <%= job.company %>
+    </p>
+
+    <!-- TAGS -->
+    <div class="flex flex-wrap gap-4 mt-4">
+
+      <span class="bg-gray-100 px-4 py-2 rounded-lg text-sm">
+        📍 <%= job.location %>
+      </span>
+
+      <span class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-semibold">
+        💰 ₹ <%= job.salary %>/year
+      </span>
+
+      <span class="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-lg text-sm">
+        Full Time
+      </span>
+
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="mt-6 text-gray-700 leading-relaxed border-t pt-6">
+      <h2 class="text-xl font-semibold mb-3">Job Description</h2>
+      <p><%= job.description %></p>
+    </div>
+
+  </div>
+
+  <!-- APPLY SECTION -->
+  <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-8 mt-8">
+
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+      Apply for this job 🚀
+    </h2>
+
+    <form action="/apply/<%= job._id %>" method="POST" enctype="multipart/form-data" class="space-y-5">
+
+      <!-- FILE INPUT -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">
+          Upload Resume
+        </label>
+
+        <input 
+        type="file" 
+        name="resume" 
+        required
+        class="w-full border border-gray-300 p-3 rounded-lg file:bg-indigo-600 file:text-white file:px-4 file:py-2 file:border-0 file:rounded-lg file:cursor-pointer hover:file:bg-indigo-500"
+        >
+      </div>
+
+      <!-- BUTTON -->
+      <button 
+      class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-500 transition duration-300 hover:shadow-md">
+        Apply Now 🚀
+      </button>
+
+    </form>
+
+  </div>
+
+  <p class="text-center text-sm text-gray-500 mt-6">
+  Our team will carefully review your resume and reach out to you within 7 working days if your profile matches the job requirements. 
+  Please ensure that all the information provided in your resume is accurate and up to date.
+</p>
+
+</div>
+
+</body>
+</html>

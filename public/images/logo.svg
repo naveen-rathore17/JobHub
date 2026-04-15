@@ -1,0 +1,35 @@
+<svg width="300" height="120" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Location Pin -->
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Pin Shape -->
+  <path d="M100 20 C50 20 30 60 30 90 C30 140 100 180 100 180 C100 180 170 140 170 90 C170 60 150 20 100 20 Z"
+        fill="url(#blueGrad)"/>
+
+  <!-- Briefcase -->
+  <rect x="65" y="70" width="70" height="40" rx="8" fill="url(#orangeGrad)"/>
+  <rect x="85" y="60" width="30" height="10" rx="3" fill="#facc15"/>
+  <rect x="95" y="85" width="10" height="10" fill="#fff"/>
+
+  <!-- Text JOB -->
+  <text x="220" y="110" font-size="50" font-weight="bold" fill="#1e40af" font-family="Arial">
+    JOB
+  </text>
+
+  <!-- Text HUB -->
+  <text x="340" y="110" font-size="50" font-weight="bold" fill="#f97316" font-family="Arial">
+    HUB
+  </text>
+
+</svg>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | JobHub</title>
+    <link rel="icon" href="images/jobhub_favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="h-screen flex flex-col">
+    <!-- BACKGROUND -->
+    <div class="relative flex-1 flex justify-center items-center">
+      <!-- Image -->
+      <img
+        src="https://static.vecteezy.com/system/resources/thumbnails/013/087/516/small/diagonal-golden-line-glass-cube-on-black-background-illustration-of-website-banner-poster-sign-corporate-business-social-media-post-billboard-agency-advertising-media-motion-video-animation-wave-vector.jpg"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-black/60"></div>
+
+      <!-- LOGIN CARD -->
+      <form
+        action="/login"
+        method="POST"
+        class="relative z-10 bg-white/90 backdrop-blur-lg p-8 rounded-2xl shadow-xl w-96 space-y-5 transition hover:scale-[1.02]"
+      >
+        <div class="text-center">
+          <a href="/">
+          <img
+            src="/images/logo.svg"
+            alt="JOBHUB Logo"
+            class="w-40 mx-auto object-contain"
+          /></a>
+        </div>
+        <% if(error){ %>
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm text-center">
+   ❌ <%= error %>
+</div>
+<% } %>
+
+        <p class="text-center text-gray-500 text-sm">Login to your account</p>
+
+        <!-- EMAIL -->
+        <input
+          name="email"
+          placeholder="Email"
+          class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        />
+
+        <!-- PASSWORD -->
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        />
+
+        <!-- BUTTON -->
+        <button
+          class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-500 transition duration-300 hover:shadow-lg"
+        >
+          Login
+        </button>
+
+        <!-- EXTRA LINKS -->
+        <div class="flex justify-between text-sm text-gray-600">
+          <a href="#" class="hover:text-indigo-600">Forgot Password?</a>
+          <a href="/register" class="hover:text-indigo-600">Register</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 text-center py-4 text-sm">
+      © 2026 JobHub • All rights reserved
+    </footer>
+  </body>
+</html>
