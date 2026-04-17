@@ -22,14 +22,29 @@ class="h-16 md:h-20 w-auto object-contain">
 
 <!-- MENU -->
 <div class="space-x-6 hidden md:flex items-center">
+
 <a href="/" class="hover:text-indigo-600">Home</a>
 <a href="/jobs" class="hover:text-indigo-600">Jobs</a>
+
+<% if(!user){ %>
+
 <a href="/login" class="hover:text-indigo-600">Login</a>
 
 <a href="/register"
 class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
 Register
 </a>
+
+<% } else { %>
+
+<a href="/user-dashboard"
+class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
+Account
+</a>
+
+
+<% } %>
+
 </div>
 
 <!-- MOBILE -->
@@ -43,12 +58,19 @@ class="hidden md:hidden absolute right-6 top-20 w-64 bg-white rounded-xl shadow-
 
 <a href="/" class="block hover:text-indigo-600">Home</a>
 <a href="/jobs" class="block hover:text-indigo-600">Jobs</a>
-<a href="/login" class="block hover:text-indigo-600">Login</a>
+<% if(!user){ %>
 
-<a href="/register"
-class="block bg-indigo-600 text-white py-2 rounded-lg">
-Register
+<a href="/login" class="block hover:text-indigo-600">Login</a>
+<a href="/register" class="block bg-indigo-600 text-white py-2 rounded-lg">Register</a>
+
+<% } else { %>
+
+<a href="/user-dashboard" class="block hover:text-indigo-600">
+Account
 </a>
+
+
+<% } %>
 
 </div>
 </nav>

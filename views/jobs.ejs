@@ -29,16 +29,35 @@
     </div>
 
     <!-- MENU -->
-    <div class="space-x-8 hidden md:flex items-center text-gray-700 font-medium">
-      <a href="/" class="hover:text-indigo-600 transition">Home</a>
-      <a href="/login" class="hover:text-indigo-600 transition">Login</a>
+    <div class="space-x-6 hidden md:flex items-center text-gray-700 font-medium">
 
-      <!-- BUTTON -->
-      <a href="/register"
-      class="ml-4 bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
-        Register
-      </a>
-    </div>
+<a href="/" class="hover:text-indigo-600 transition">Home</a>
+<a href="/jobs" class="hover:text-indigo-600 transition">Jobs</a>
+
+<% if(!user){ %>
+
+<a href="/login" class="hover:text-indigo-600 transition">Login</a>
+
+<a href="/register"
+class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
+Register
+</a>
+
+<% } else { %>
+
+<a href="/user-dashboard"
+class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
+Account
+</a>
+
+<button onclick="openLogoutModal()"
+class="border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">
+Logout
+</button>
+
+<% } %>
+
+</div>
 
     <!-- MOBILE BUTTON -->
     <button id="menuBtn" class="md:hidden text-2xl text-gray-700">
@@ -47,6 +66,33 @@
 
   </div>
 </nav>
+<!-- MOBILE MENU -->
+<div id="mobileMenu"
+class="hidden md:hidden absolute right-6 top-20 w-64 bg-white rounded-xl shadow-lg p-4 space-y-4 text-center z-50">
+
+<a href="/" class="block hover:text-indigo-600">Home</a>
+<a href="/jobs" class="block hover:text-indigo-600">Jobs</a>
+
+<% if(!user){ %>
+
+<a href="/login" class="block hover:text-indigo-600">Login</a>
+<a href="/register" class="block bg-indigo-600 text-white py-2 rounded-lg">
+Register
+</a>
+
+<% } else { %>
+
+<a href="/user-dashboard" class="block hover:text-indigo-600">
+Account
+</a>
+
+<button onclick="openLogoutModal()" class="block text-red-500 w-full">
+Logout
+</button>
+
+<% } %>
+
+</div>
 <!-- TITLE -->
 <div class="text-center py-16 relative">
   <div class="absolute left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-indigo-400 opacity-20 blur-3xl rounded-full"></div>
@@ -146,5 +192,57 @@
   <p>© 2026 JobPortal. All rights reserved.</p>
 </footer>
 
+<div id="logoutModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center">
+
+  <div class="bg-white p-6 rounded-xl text-center animate-scale">
+
+    <h2 class="text-lg font-semibold">Logout?</h2>
+    <p class="text-gray-500 mt-2">Are you sure you want to logout?</p>
+
+    <div class="flex justify-center gap-4 mt-4">
+
+      <button onclick="closeLogoutModal()"
+      class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+        Cancel
+      </button>
+
+       <a href="/logout"
+class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+Logout
+</a>
+
+    </div>
+
+  </div>
+
+</div>
+
 </body>
+
+<script>
+const btn = document.getElementById("menuBtn");
+const menu = document.getElementById("mobileMenu");
+
+// toggle open/close
+btn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  menu.classList.toggle("hidden");
+});
+
+// click outside = close
+document.addEventListener("click", (e) => {
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.add("hidden");
+  }
+});
+
+function openLogoutModal(){
+document.getElementById("logoutModal").classList.remove("hidden")
+document.getElementById("logoutModal").classList.add("flex")
+}
+
+function closeLogoutModal(){
+document.getElementById("logoutModal").classList.add("hidden")
+}
+</script>
 </html>

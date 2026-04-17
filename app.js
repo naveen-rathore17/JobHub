@@ -6,8 +6,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
-const path = require("path");
 const fs = require("fs");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const session = require("express-session");
 
 const app = express();
 
@@ -16,12 +18,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
 
+app.use(session({
+  secret: "googleloginsecret",
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
 /* ---------------- DB ---------------- */
 
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("DB Connected"))
-  .catch((err) => console.log(err));
+  .catch(err => console.log(err));
 
 /* ---------------- MODELS ---------------- */
 
@@ -29,7 +41,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
-  role: { type: String, default: "user" },
+  googleId: String
 });
 
 const jobSchema = new mongoose.Schema({
@@ -38,21 +50,60 @@ const jobSchema = new mongoose.Schema({
   location: String,
   salary: String,
   description: String,
+  applyLink: String,
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
 
 const applicationSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job" },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   resume: String,
-  status: {
-    type: String,
-    default: "Pending",
-  },
+  status: { type: String, default: "Pending" }
 });
 
 const User = mongoose.model("User", userSchema);
 const Job = mongoose.model("Job", jobSchema);
 const Application = mongoose.model("Application", applicationSchema);
+
+
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "/auth/google/callback"
+},
+async (accessToken, refreshToken, profile, done) => {
+
+  try {
+
+    let user = await User.findOne({ googleId: profile.id });
+
+    if (!user) {
+      user = await new User({
+        name: profile.displayName,
+        email: profile.emails[0].value,
+        googleId: profile.id
+      }).save();
+    }
+
+    return done(null, user);
+
+  } catch (err) {
+    return done(err, null);
+  }
+
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  done(null, user);
+});
 
 /* ---------------- MULTER ---------------- */
 
@@ -61,12 +112,8 @@ if (!fs.existsSync("./public/uploads")) {
 }
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
+  destination: (req, file, cb) => cb(null, "public/uploads"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
 
 const upload = multer({ storage });
@@ -87,6 +134,27 @@ function auth(req, res, next) {
   }
 }
 
+
+app.use(async (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    res.locals.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    res.locals.user = user; // 🔥 GLOBAL USER
+  } catch {
+    res.locals.user = null;
+  }
+
+  next();
+});
+
 /* ---------------- HOME ---------------- */
 
 app.get("/", async (req, res) => {
@@ -101,22 +169,25 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { name, email, password, isAdmin } = req.body;
 
-  const role = isAdmin ? "admin" : "user";
+  const { name, email, password } = req.body;
+
+  const existing = await User.findOne({ email });
+
+  if (existing) {
+    return res.send("Email already registered");
+  }
 
   const hash = await bcrypt.hash(password, 10);
 
-  const user = new User({
+  await new User({
     name,
     email,
-    password: hash,
-    role,
-  });
-
-  await user.save();
+    password: hash
+  }).save();
 
   res.redirect("/login");
+
 });
 
 /* ---------------- LOGIN ---------------- */
@@ -130,96 +201,71 @@ app.post("/login", async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.render("login", { error: "User not found" });
-  }
+  if (!user) return res.render("login", { error: "User not found" });
 
   const match = await bcrypt.compare(password, user.password);
 
-  if (!match) {
-    return res.render("login", { error: "Incorrect password" });
-  }
+  if (!match) return res.render("login", { error: "Incorrect password" });
 
-  const token = jwt.sign(
-    { id: user._id },
-    process.env.JWT_SECRET
-  );
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-  res.cookie("token", token);
-
-  if (user.role === "admin") {
-    res.redirect("/admin-dashboard");
-  } else {
-    res.redirect("/user-dashboard");
-  }
-});
-
-/* ---------------- ADMIN DASHBOARD ---------------- */
-
-app.get("/admin-dashboard", auth, async (req, res) => {
-
-  const user = await User.findById(req.user.id);
-
-  if (user.role !== "admin") {
-    return res.send("Not allowed");
-  }
-
-  const jobs = await Job.find();
-
-  // 🔹 All applications
-  const applications = await Application.find();
-
-  // 🔹 Applicants count per job
-  const jobApplicants = {};
-
-  applications.forEach(app => {
-
-    const jobId = app.jobId.toString();
-
-    if(jobApplicants[jobId]){
-      jobApplicants[jobId]++;
-    }else{
-      jobApplicants[jobId] = 1;
-    }
-
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000
   });
 
-  res.render("admin-dashboard", { jobs, jobApplicants });
-
+  res.redirect("/user-dashboard");
 });
+
+/* ---------------- GOOGLE LOGIN ---------------- */
+
+app.get("/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+
+    const token = jwt.sign(
+      { id: req.user._id },
+      process.env.JWT_SECRET
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.redirect("/user-dashboard");
+
+  }
+);
 
 /* ---------------- POST JOB ---------------- */
 
-app.get("/post-job", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  if (user.role !== "admin") {
-    return res.send("Only admin allowed");
-  }
-
+app.get("/post-job", auth, (req, res) => {
   res.render("post-job");
 });
 
 app.post("/post-job", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const { title, company, location, salary, description, applyLink } = req.body;
 
-  if (user.role !== "admin") {
-    return res.send("Only admin allowed");
-  }
+const finalLink = applyLink
+  ? (applyLink.startsWith("http") ? applyLink : "https://" + applyLink)
+  : "";
 
-  const { title, company, location, salary, description } = req.body;
+await new Job({
+  title,
+  company,
+  location,
+  salary,
+  description,
+  applyLink: finalLink,
+  createdBy: req.user.id
+}).save();
 
-  const job = new Job({
-    title,
-    company,
-    location,
-    salary,
-    description,
-  });
-
-  await job.save();
-
-  res.redirect("/admin-dashboard");
+  res.redirect("/user-dashboard");
 });
 
 /* ---------------- JOB LIST ---------------- */
@@ -229,7 +275,6 @@ app.get("/jobs", async (req, res) => {
   res.render("jobs", { jobs });
 });
 
-/* ---------------- JOB DETAILS ---------------- */
 
 app.get("/jobs/:id", async (req, res) => {
   const job = await Job.findById(req.params.id);
@@ -238,81 +283,128 @@ app.get("/jobs/:id", async (req, res) => {
 
 /* ---------------- APPLY JOB ---------------- */
 
-app.post(
-  "/apply/:id",
-  auth,
-  upload.single("resume"),
-  async (req, res) => {
-    const alreadyApplied = await Application.findOne({
-      jobId: req.params.id,
-      userId: req.user.id,
-    });
+app.post("/apply/:id", auth, upload.single("resume"), async (req, res) => {
 
-    if (alreadyApplied) {
-      return res.send("You already applied for this job");
-    }
+  const exists = await Application.findOne({
+    jobId: req.params.id,
+    userId: req.user.id
+  });
 
-    if (!req.file) {
-      return res.send("Resume required");
-    }
+  if (exists) return res.send("Already applied");
+  if (!req.file) return res.send("Resume required");
 
-    const application = new Application({
-      jobId: req.params.id,
-      userId: req.user.id,
-      resume: req.file.filename,
-    });
+  await new Application({
+    jobId: req.params.id,
+    userId: req.user.id,
+    resume: req.file.filename
+  }).save();
 
-    await application.save();
+  res.render("apply-success");
+});
 
-    res.redirect("/user-dashboard");
+/* ---------------- APPLICANTS ---------------- */
+
+app.get("/applicants/:jobId", auth, async (req, res) => {
+
+  const job = await Job.findById(req.params.jobId);
+
+  if (!job) return res.send("Job not found");
+
+  if (job.createdBy.toString() !== req.user.id) {
+    return res.send("Not allowed");
   }
-);
 
-/* ---------------- USER DASHBOARD ---------------- */
+  const applicants = await Application.find({
+    jobId: req.params.jobId
+  })
+  .populate("userId")
+  .populate("jobId"); // 🔥 IMPORTANT
+
+  res.render("applicants", { applicants, job });
+});
+
+/* ---------------- STATUS UPDATE ---------------- */
+
+app.get("/update-status/:id/:status", auth, async (req, res) => {
+
+  const application = await Application.findById(req.params.id).populate("jobId");
+
+  if (!application) return res.send("Application not found");
+
+  if (application.jobId.createdBy.toString() !== req.user.id) {
+    return res.send("Not allowed");
+  }
+
+  await Application.findByIdAndUpdate(req.params.id, {
+    status: req.params.status
+  });
+
+  // 🔥 FIX: redirect to applicants page
+  res.redirect(`/applicants/${application.jobId._id}`);
+});
+/* ---------------- DASHBOARD ---------------- */
 
 app.get("/user-dashboard", auth, async (req, res) => {
+
   const user = await User.findById(req.user.id);
 
   const applications = await Application.find({
-    userId: req.user.id,
+    userId: req.user.id
   }).populate("jobId");
 
+  const myJobs = await Job.find({
+    createdBy: req.user.id
+  });
+
   res.render("user-dashboard", {
-    applications,
     user,
+    applications,
+    myJobs
   });
 });
 
-/* ---------------- DELETE JOB ---------------- */
+/* ---------------- DELETE ---------------- */
 
 app.get("/delete-job/:id", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
 
-  if (user.role !== "admin") {
+  const job = await Job.findById(req.params.id);
+
+  if (job.createdBy.toString() !== req.user.id) {
     return res.send("Not allowed");
   }
 
   await Job.findByIdAndDelete(req.params.id);
 
-  res.redirect("/admin-dashboard");
+  res.redirect("/user-dashboard");
 });
-
-/* ---------------- EDIT JOB ---------------- */
+/* ---------------- Edit page ---------------- */
 
 app.get("/edit-job/:id", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  if (user.role !== "admin") {
-    return res.send("Not allowed");
-  }
 
   const job = await Job.findById(req.params.id);
+
+  if (!job) return res.send("Job not found");
+
+  // security check
+  if (job.createdBy.toString() !== req.user.id) {
+    return res.send("Not allowed");
+  }
 
   res.render("edit-job", { job });
 });
 
+/* ---------------- updated route ---------------- */
 app.post("/edit-job/:id", auth, async (req, res) => {
-  const { title, company, location, salary, description } = req.body;
+
+  const job = await Job.findById(req.params.id);
+
+  if (!job) return res.send("Job not found");
+
+  if (job.createdBy.toString() !== req.user.id) {
+    return res.send("Not allowed");
+  }
+
+  const { title, company, location, salary, description,applyLink } = req.body;
 
   await Job.findByIdAndUpdate(req.params.id, {
     title,
@@ -320,68 +412,22 @@ app.post("/edit-job/:id", auth, async (req, res) => {
     location,
     salary,
     description,
+    applyLink
   });
 
-  res.redirect("/admin-dashboard");
-});
-
-/* ---------------- APPLICANTS ---------------- */
-
-app.get("/applicants/:jobId", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  if (user.role !== "admin") {
-    return res.send("Not allowed");
-  }
-
-  const applications = await Application.find({
-  jobId: new mongoose.Types.ObjectId(req.params.jobId),
-})
-.populate("userId")
-.populate("jobId");
-
-  res.render("applicants", { applications });
-});
-
-app.get("/update-status/:id/:status", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  if (user.role !== "admin") {
-    return res.send("Not allowed");
-  }
-
-  const application = await Application.findById(req.params.id);
-
-  if (!application) {
-    return res.send("Application not found");
-  }
-
-  await Application.findByIdAndUpdate(req.params.id, {
-    status: req.params.status,
-  });
-
-  res.redirect("/applicants/" + application.jobId);
-});
-
-/* ---------------- SEARCH ---------------- */
-
-app.get("/search", async (req, res) => {
-  const keyword = req.query.q;
-
-  const jobs = await Job.find({
-    title: { $regex: keyword, $options: "i" },
-  });
-
-  res.render("jobs", { jobs });
+  res.redirect("/user-dashboard");
 });
 
 /* ---------------- LOGOUT ---------------- */
 
 app.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
-});
 
+  req.logout(() => {
+    res.clearCookie("token");
+    res.redirect("/");
+  });
+
+});
 /* ---------------- SERVER ---------------- */
 
 const PORT = process.env.PORT || 3000;
