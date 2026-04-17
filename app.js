@@ -366,6 +366,22 @@ app.get("/user-dashboard", auth, async (req, res) => {
   });
 });
 
+/* ---------------- search ---------------- */
+
+app.get("/search", async (req, res) => {
+  const query = req.query.q;
+
+  try {
+    const jobs = await Job.find({
+      title: { $regex: query, $options: "i" }
+    });
+
+    res.render("jobs", { jobs, query });
+  } catch (err) {
+    res.send("Error in search");
+  }
+});
+
 /* ---------------- DELETE ---------------- */
 
 app.get("/delete-job/:id", auth, async (req, res) => {
