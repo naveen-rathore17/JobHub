@@ -21,9 +21,12 @@ app.use(express.static("public"));
 app.use(session({
   secret: "googleloginsecret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: true, // production (https)
+    sameSite: "none"
+  }
 }));
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -72,7 +75,7 @@ const Application = mongoose.model("Application", applicationSchema);
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/google/callback"
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
 },
 async (accessToken, refreshToken, profile, done) => {
 
