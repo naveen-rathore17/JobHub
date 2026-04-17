@@ -17,7 +17,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
-
+app.set("trust proxy", 1);
 app.use(session({
   secret: "googleloginsecret",
   resave: false,
@@ -424,12 +424,11 @@ app.post("/edit-job/:id", auth, async (req, res) => {
 /* ---------------- LOGOUT ---------------- */
 
 app.get("/logout", (req, res) => {
-
-  req.logout(() => {
+  req.logout(function (err) {
+    if (err) return next(err);
     res.clearCookie("token");
     res.redirect("/");
   });
-
 });
 /* ---------------- SERVER ---------------- */
 
