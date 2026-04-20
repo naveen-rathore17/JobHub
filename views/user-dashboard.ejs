@@ -3,312 +3,363 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Dashboard | JobHub</title>
 <link rel="icon" href="/images/jobhub_favicon.ico">
-
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { jakarta: ['Plus Jakarta Sans', 'sans-serif'] },
+        animation: {
+          'float1': 'float1 9s ease-in-out infinite',
+          'float2': 'float2 11s ease-in-out infinite',
+          'float3': 'float3 13s ease-in-out infinite',
+          'fade-up': 'fadeUp 0.5s ease both',
+          'scale-in': 'scaleIn 0.28s cubic-bezier(.34,1.56,.64,1) both',
+          'wave': 'wave 2.5s ease-in-out infinite',
+          'shimmer': 'shimmer 2.5s linear infinite',
+          'pulse-g': 'pulseG 2s ease infinite',
+        },
+        keyframes: {
+          float1: { '0%,100%':{ transform:'translate(0,0) scale(1)' }, '50%':{ transform:'translate(18px,-22px) scale(1.05)' } },
+          float2: { '0%,100%':{ transform:'translate(0,0) scale(1)' }, '50%':{ transform:'translate(-22px,18px) scale(0.96)' } },
+          float3: { '0%,100%':{ transform:'translate(0,0) scale(1)' }, '50%':{ transform:'translate(14px,14px) scale(1.03)' } },
+          fadeUp: { from:{ opacity:'0', transform:'translateY(18px)' }, to:{ opacity:'1', transform:'translateY(0)' } },
+          scaleIn: { from:{ opacity:'0', transform:'scale(0.88) translateY(10px)' }, to:{ opacity:'1', transform:'scale(1) translateY(0)' } },
+          wave: { '0%,100%':{ transform:'rotate(0deg)' }, '20%':{ transform:'rotate(-14deg)' }, '40%':{ transform:'rotate(10deg)' }, '60%':{ transform:'rotate(-8deg)' }, '80%':{ transform:'rotate(6deg)' } },
+          shimmer: { '0%':{ backgroundPosition:'-200% 0' }, '100%':{ backgroundPosition:'200% 0' } },
+          pulseG: { '0%,100%':{ transform:'scale(1)', opacity:'1' }, '50%':{ transform:'scale(1.35)', opacity:'0.6' } },
+        }
+      }
+    }
+  }
+</script>
 <style>
-@keyframes scaleIn{
-from{transform:scale(.85);opacity:0}
-to{transform:scale(1);opacity:1}
-}
-.animate-scale{
-animation:scaleIn .25s ease;
-}
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-/* gradient divider */
-.divider{
-height:4px;
-background:linear-gradient(to right,#6366f1,#ec4899,#facc15);
-border-radius:10px;
-margin:40px 0;
-}
+  .bg-mesh {
+    background-color: #eef0fb;
+    background-image:
+      radial-gradient(ellipse 65% 50% at 5% 15%, rgba(99,102,241,0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 45% at 95% 85%, rgba(244,63,94,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 55% at 55% 50%, rgba(245,158,11,0.05) 0%, transparent 60%);
+  }
+
+  .orb { position:fixed; border-radius:50%; filter:blur(72px); pointer-events:none; z-index:0; }
+
+  .grad-text {
+    background: linear-gradient(135deg, #4f46e5, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shimmer-bar {
+    height: 3px; border-radius: 99px;
+    background: linear-gradient(90deg, #4f46e5, #f43f5e, #f59e0b, #4f46e5);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  .accent-bar {
+    position:absolute; left:0; top:0;
+    width:4px; height:100%;
+    background: linear-gradient(180deg, #4f46e5, #f43f5e);
+    border-radius: 18px 0 0 18px;
+  }
+
+  .status-top {
+    position:absolute; top:0; left:0; right:0;
+    height:3px; border-radius:18px 18px 0 0;
+  }
+
+  #logoutModal { display:none; }
+  #logoutModal.active { display:flex; }
+
+  .job-card:hover { box-shadow: 0 14px 36px rgba(79,70,229,0.13); }
+  .app-card:hover  { box-shadow: 0 12px 30px rgba(244,63,94,0.10); }
+
+  /* stagger */
+  .s1{animation-delay:.05s} .s2{animation-delay:.10s} .s3{animation-delay:.15s} .s4{animation-delay:.20s} .sn{animation-delay:.25s}
 </style>
 </head>
 
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex flex-col">
+<body class="bg-mesh min-h-screen flex flex-col relative overflow-x-hidden">
 
-<!-- HEADER -->
-<header class="bg-white/90 backdrop-blur border-b sticky top-0 z-50">
-<div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+<!-- Orbs -->
+<div class="orb animate-float1 bg-indigo-400 opacity-[0.14]" style="width:360px;height:360px;top:-120px;left:-100px"></div>
+<div class="orb animate-float2 bg-rose-400 opacity-[0.11]"   style="width:300px;height:300px;bottom:-60px;right:-80px"></div>
+<div class="orb animate-float3 bg-amber-400 opacity-[0.09]"  style="width:220px;height:220px;top:45%;left:48%"></div>
 
-<a href="/">
-<img src="/images/logo.svg" class="w-36">
+<!-- ══════════ HEADER ══════════ -->
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-indigo-100 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex justify-between items-center">
+
+    <!-- LOGO -->
+    <a href="/" class="flex items-center">
+      <img src="/images/logo.svg" class="h-10 sm:h-12 md:h-14 w-auto object-contain">
+    </a>
+
+    <!-- DESKTOP MENU -->
+    <div class="hidden md:flex items-center gap-3">
+
+      <a href="/profile"
+   class="group flex items-center gap-2.5 bg-white/60 hover:bg-indigo-50 
+          border border-indigo-100 px-3 py-1.5 rounded-full 
+          shadow-sm hover:shadow-md transition-all duration-200">
+
+  <!-- SMALL DOT (ONLINE STYLE OPTIONAL FEEL) -->
+  <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+
+  <!-- NAME -->
+  <span class="text-sm font-semibold text-indigo-700 max-w-[130px] truncate group-hover:text-indigo-800">
+    <%= user.name %>
+  </span>
+
+  <!-- ARROW ICON -->
+  <svg class="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-600 transition"
+       fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 5l7 7-7 7"/>
+  </svg>
+
 </a>
 
-<div class="flex items-center gap-4">
-
-<div class="bg-gray-100 px-3 py-1 rounded-lg shadow-sm">
-👤 <%= user.name %>
-</div>
-
-<a href="/post-job"
-class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition shadow">
-+ Post Job
-</a>
-
-<button onclick="openLogoutModal()"
-class="border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">
-Logout
-</button>
-
-</div>
-</div>
-</header>
-
-<!-- MAIN -->
-<div class="flex-1 max-w-6xl mx-auto px-6 py-10 w-full">
-
-<!-- <h1 class="text-4xl font-bold text-center mb-12 text-gray-800">
-✨ My Dashboard
-</h1> -->
-
-<!-- TITLE -->
-<h1 class="text-4xl font-bold text-center mb-12 fade-up">
-🚀 Welcome, <span class="text-indigo-600"><%= user.name %></span>
-</h1>
-
-<!-- ================= MY POSTED JOBS ================= -->
-
-<div class="bg-white p-6 rounded-xl shadow-lg">
-
-<h2 class="text-3xl text-center font-semibold mb-6 text-indigo-600">
-💼 Posted Jobs
-</h2>
-
-<% if(myJobs.length === 0){ %>
-
-<div class="text-center py-12">
-
-  <!-- Icon -->
-  <div class="text-6xl mb-4">
-    📂
-  </div>
-
-  <!-- Heading -->
-  <h2 class="text-2xl font-semibold text-gray-700">
-    No Jobs Posted Yet
-  </h2>
-
-  <!-- Description -->
-  <p class="text-gray-500 mt-2 max-w-md mx-auto">
-    You haven’t posted any job opportunities yet. Start hiring by creating your first job post.
-  </p>
-
-  <!-- Button -->
-  <a href="/post-job"
-  class="inline-block mt-6 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-500 transition shadow">
-    + Post Your First Job
-  </a>
-
-</div>
-
-<% } else { %>
-
-<div class="grid md:grid-cols-2 gap-6">
-
-<% myJobs.forEach(job=>{ %>
-
-<div class="bg-gray-50 p-5 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
-
-<h3 class="font-semibold text-lg text-gray-800">💼 <%= job.title %></h3>
-<p class="text-gray-600">🏢 <%= job.company %></p>
-<p class="text-gray-500 text-sm">📍 <%= job.location %></p>
-
-<div class="flex flex-wrap gap-3 mt-4">
-
-<a href="/jobs/<%= job._id %>"
-class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
-View Details
-</a>
-
-<a href="/edit-job/<%= job._id %>"
-class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 text-sm">
-Edit
-</a>
-
-<button onclick="confirmDelete('<%= job._id %>')"
-class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm">
-Delete
-</button>
-
-<a href="/applicants/<%= job._id %>"
-class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm">
-Applicants
-</a>
-
-</div>
-
-</div>
-
-<% }) %>
-
-</div>
-
-<% } %>
-
-</div>
-
-<!-- 🔥 DIVIDER -->
-<div class="divider"></div>
-
-<!-- ================= MY APPLICATIONS ================= -->
-
-<div class="bg-white p-6 rounded-xl shadow-lg">
-
-<h2 class="text-3xl text-center font-semibold mb-6 text-pink-600">
-📄 My Applications
-</h2>
-
-<% if(applications.length === 0){ %>
-
-<div class="text-center text-gray-500">
-No Applications Yet
-</div>
-
-<% } else { %>
-
-<div class="grid md:grid-cols-2 gap-6">
-
-<% applications.forEach(app=>{ %>
-
-<div class="bg-gray-50 p-5 rounded-xl shadow hover:shadow-lg transition">
-
-<h3 class="font-semibold text-lg text-gray-800">
-💼 <%= app.jobId.title %>
-</h3>
-
-<p class="text-gray-600">
-🏢 <%= app.jobId.company %>
-</p>
-
-<p class="text-gray-500 text-sm">
-📍 <%= app.jobId.location %>
-</p>
-
-
-
-<!-- STATUS -->
-<div class="mt-3">
-
-<span class="px-3 py-1 text-xs rounded font-semibold
-<%= app.status === 'Shortlisted' ? 'bg-green-100 text-green-700' :
-app.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-'bg-yellow-100 text-yellow-700' %>">
-
-<%= app.status %>
-
-</span>
-
-<!-- MESSAGE -->
-<p class="text-sm mt-2 text-gray-600">
-
-<% if(app.status === 'Shortlisted'){ %>
-🎉 Congratulations! Our HR team will contact you shortly.
-<% } else if(app.status === 'Rejected'){ %>
-💙 Thank you for applying. We encourage you to explore more opportunities.
-<% } else { %>
-⏳ Your application is under review.
-<% } %>
-
-</p>
-
-</div>
-
-</div>
-
-<% }) %>
-
-</div>
-
-<% } %>
-
-</div>
-<!-- BROWSE JOB BUTTON -->
-<div class="text-center mt-10">
-
-  <a href="/jobs"
-  class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-500 transition shadow-lg hover:scale-105">
-
-    🔍 Browse Jobs
-
-  </a>
-
-</div>
-
-</div>
-
-<!-- FOOTER -->
-<footer class="bg-gray-900 text-gray-400 mt-10">
-
-<div class="max-w-6xl mx-auto px-6 py-10 text-center">
-
-<h2 class="text-white text-lg font-semibold mb-2">
-JobHub Dashboard
-</h2>
-
-<p class="text-sm">
-Manage your jobs and applications easily with our smart dashboard.
-</p>
-
-<p class="mt-4 text-xs text-gray-500">
-© 2026 JobHub • All rights reserved
-</p>
-
-</div>
-
-</footer>
-
-<!-- LOGOUT MODAL -->
-<div id="logoutModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center">
-
-  <div class="bg-white p-6 rounded-xl text-center animate-scale">
-
-    <h2 class="text-lg font-semibold">Logout?</h2>
-    <p class="text-gray-500 mt-2">Are you sure you want to logout?</p>
-
-    <div class="flex justify-center gap-4 mt-4">
-
-      <button onclick="closeLogoutModal()"
-      class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-        Cancel
-      </button>
-
-      <a href="/logout"
-      class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-        Logout
+      <a href="/post-job"
+         class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-indigo-500">
+        + Post Job
       </a>
+
+       <a href="/profile"
+         class="hidden sm:inline-flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-full transition hover:-translate-y-px hover:shadow-md">
+        ✏️ Update
+      </a>
+
+      <button onclick="openLogoutModal()"
+              class="border border-red-400 text-red-500 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-red-500 hover:text-white">
+        Logout
+      </button>
 
     </div>
 
+    <!-- MOBILE BUTTON -->
+    <button onclick="toggleMenu()" class="md:hidden text-gray-700 text-2xl">
+      ☰
+    </button>
+
   </div>
 
+  <!-- MOBILE DROPDOWN -->
+  <div id="mobileMenu"
+       class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2">
+
+    <a href="/" class="block text-sm text-gray-700 hover:text-indigo-600">Home</a>
+    <a href="/profile" class="block text-sm text-gray-700 hover:text-indigo-600">Update Profile</a>
+    <a href="/post-job" class="block text-sm text-gray-700 hover:text-indigo-600">Post Job</a>
+
+    <button onclick="openLogoutModal()"
+            class="w-full text-left text-sm text-red-500 hover:text-red-600">
+      Logout
+    </button>
+
+  </div>
+</header>
+
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="relative z-10 flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-7 sm:py-9">
+
+  <!-- Welcome -->
+  <div class="text-center mb-7 animate-fade-up">
+    <h1 class="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight leading-snug">
+      <span class="inline-block animate-wave origin-[70%_70%]">👋</span>
+      Welcome back, <span class="grad-text"><%= user.name %></span>
+    </h1>
+    <p class="text-xs text-slate-400 mt-1">Manage your postings and track your applications</p>
+  </div>
+
+  <!-- ── POSTED JOBS ── -->
+  <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg shadow-indigo-100/40 border border-indigo-100/50 p-5 sm:p-6 animate-fade-up" style="animation-delay:.08s">
+
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="flex items-center gap-2 text-sm sm:text-base font-bold text-indigo-700">
+        <span class="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+        </span>
+        Posted Jobs
+      </h2>
+      <% if(myJobs.length > 0){ %>
+      <span class="text-[11px] bg-indigo-100 text-indigo-600 font-bold px-2.5 py-0.5 rounded-full"><%= myJobs.length %> job<%= myJobs.length>1?'s':'' %></span>
+      <% } %>
+    </div>
+
+    <% if(myJobs.length === 0){ %>
+    <div class="text-center py-10 animate-fade-up">
+      <div class="w-14 h-14 mx-auto mb-3 bg-indigo-50 border-2 border-dashed border-indigo-200 rounded-full flex items-center justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      </div>
+      <p class="font-bold text-slate-700 text-sm mb-1">No Jobs Posted Yet</p>
+      <p class="text-xs text-slate-400 mb-5 max-w-xs mx-auto">Post your first opportunity and connect with talented candidates.</p>
+      <a href="/post-job" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Post Your First Job
+      </a>
+    </div>
+
+    <% } else { %>
+    <div class="grid sm:grid-cols-2 gap-3.5">
+      <% myJobs.forEach((job, i)=>{ %>
+      <div class="job-card relative bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-xl p-4 pl-6 transition-all duration-300 hover:-translate-y-1 animate-fade-up <%= ['s1','s2','s3','s4'][i]||'sn' %>">
+        <div class="accent-bar"></div>
+        <p class="font-bold text-sm text-slate-800 mb-0.5 truncate"><%= job.title %></p>
+        <p class="text-[11px] text-slate-500 flex items-center gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <%= job.company %>
+        </p>
+        <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <%= job.location %>
+        </p>
+        <div class="flex flex-wrap gap-1.5 mt-3.5">
+          <a href="/jobs/<%= job._id %>" class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition hover:-translate-y-px">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View
+          </a>
+          <a href="/edit-job/<%= job._id %>" class="inline-flex items-center gap-1 bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition hover:-translate-y-px">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit
+          </a>
+          <button onclick="confirmDelete('<%= job._id %>')" class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition hover:-translate-y-px">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>Delete
+          </button>
+          <a href="/applicants/<%= job._id %>" class="inline-flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition hover:-translate-y-px">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Applicants
+          </a>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Divider -->
+  <div class="shimmer-bar my-7"></div>
+
+  <!-- ── MY APPLICATIONS ── -->
+  <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg shadow-rose-100/30 border border-rose-100/40 p-5 sm:p-6 animate-fade-up" style="animation-delay:.14s">
+
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="flex items-center gap-2 text-sm sm:text-base font-bold text-rose-600">
+        <span class="w-6 h-6 bg-rose-100 rounded-lg flex items-center justify-center shrink-0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.3" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        My Applications
+      </h2>
+      <% if(applications.length > 0){ %>
+      <span class="text-[11px] bg-rose-100 text-rose-500 font-bold px-2.5 py-0.5 rounded-full"><%= applications.length %> applied</span>
+      <% } %>
+    </div>
+
+    <% if(applications.length === 0){ %>
+    <div class="text-center py-10 animate-fade-up">
+      <div class="w-14 h-14 mx-auto mb-3 bg-rose-50 border-2 border-dashed border-rose-200 rounded-full flex items-center justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <p class="font-bold text-slate-700 text-sm mb-1">No Applications Yet</p>
+      <p class="text-xs text-slate-400 max-w-xs mx-auto">Browse jobs and start applying to opportunities that match you.</p>
+    </div>
+
+    <% } else { %>
+    <div class="grid sm:grid-cols-2 gap-3.5">
+      <% applications.forEach((app, i)=>{ %>
+      <div class="app-card relative bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-xl p-4 overflow-hidden transition-all duration-300 hover:-translate-y-1 animate-fade-up <%= ['s1','s2','s3','s4'][i]||'sn' %>">
+        <div class="status-top <%= app.status==='Shortlisted'?'bg-gradient-to-r from-emerald-400 to-green-500':app.status==='Rejected'?'bg-gradient-to-r from-red-400 to-red-500':'bg-gradient-to-r from-amber-400 to-orange-400' %>"></div>
+
+        <p class="font-bold text-sm text-slate-800 mt-1 mb-0.5 truncate"><%= app.jobId.title %></p>
+        <p class="text-[11px] text-slate-500 flex items-center gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <%= app.jobId.company %>
+        </p>
+        <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <%= app.jobId.location %>
+        </p>
+
+        <div class="mt-3 flex items-center gap-2 flex-wrap">
+          <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full
+            <%= app.status==='Shortlisted'?'bg-emerald-100 text-emerald-700':app.status==='Rejected'?'bg-red-100 text-red-600':'bg-amber-100 text-amber-700' %>">
+            <%= app.status==='Shortlisted'?'✅':app.status==='Rejected'?'❌':'⏳' %>
+            <%= app.status %>
+          </span>
+          <span class="text-[11px] text-slate-400">
+            <% if(app.status==='Shortlisted'){ %>🎉 HR will contact you.<% } else if(app.status==='Rejected'){ %>💙 Keep trying!<% } else { %>Under review.<% } %>
+          </span>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Browse button -->
+  <div class="text-center mt-7 animate-fade-up" style="animation-delay:.2s">
+    <a href="/jobs" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-1 transition-all">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Browse All Jobs
+    </a>
+  </div>
+
+</main>
+
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="relative z-10 bg-gradient-to-br from-slate-900 to-indigo-950 text-white/50 py-7 text-center mt-4">
+  <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 via-pink-500 to-amber-400"></div>
+  <div class="flex items-center justify-center gap-2 mb-1.5">
+    <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="url(#fg)"/>
+      <path d="M10 22V14a4 4 0 014-4h0a4 4 0 014 4v8" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M18 18h8v-4a4 4 0 00-4-4h0" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="26" cy="22" r="3" stroke="white" stroke-width="2.2"/>
+      <path d="M28.12 24.12L30 26" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <defs><linearGradient id="fg" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#f43f5e"/></linearGradient></defs>
+    </svg>
+    <span class="text-white font-bold text-sm">JobHub Dashboard</span>
+  </div>
+  <p class="text-xs">Manage your jobs and applications with ease.</p>
+  <p class="text-[11px] mt-2 text-white/25">© 2026 JobHub — All rights reserved</p>
+</footer>
+
+
+<!-- ══════════ LOGOUT MODAL ══════════ -->
+<div id="logoutModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-7 text-center w-full max-w-[320px] shadow-2xl animate-scale-in">
+    <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-3.5">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </div>
+    <p class="font-extrabold text-slate-800 text-base mb-1">Sign out?</p>
+    <p class="text-xs text-slate-400 mb-5">You'll need to log in again to access your dashboard.</p>
+    <div class="flex gap-2.5 justify-center">
+      <button onclick="closeLogoutModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition">Cancel</button>
+      <a href="/logout" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-bold text-sm rounded-xl shadow shadow-red-200 hover:-translate-y-px transition-all">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </div>
 </div>
 
-<!-- MODALS SAME -->
 <script>
+  function openLogoutModal(){ document.getElementById("logoutModal").classList.add("active"); }
+  function closeLogoutModal(){ document.getElementById("logoutModal").classList.remove("active"); }
+  document.getElementById("logoutModal").addEventListener("click",function(e){ if(e.target===this) closeLogoutModal(); });
+</script>
 
-function openLogoutModal(){
-document.getElementById("logoutModal").classList.remove("hidden")
-document.getElementById("logoutModal").classList.add("flex")
-}
-
-function closeLogoutModal(){
-document.getElementById("logoutModal").classList.add("hidden")
-}
-
-function confirmDelete(id){
-document.getElementById("deleteModal").classList.remove("hidden")
-document.getElementById("deleteModal").classList.add("flex")
-document.getElementById("deleteLink").href = "/delete-job/" + id
-}
-
-function closeDeleteModal(){
-document.getElementById("deleteModal").classList.add("hidden")
-}
-
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    menu.classList.toggle("hidden");
+  }
 </script>
 
 </body>

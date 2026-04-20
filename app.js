@@ -15,6 +15,7 @@ const app = express();
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 app.set("trust proxy", 1);
@@ -22,10 +23,10 @@ app.use(session({
   secret: "googleloginsecret",
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: true, // production (https)
-    sameSite: "none"
-  }
+ cookie: {
+  secure: false,
+  sameSite: "lax"
+}
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -44,7 +45,20 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
-  googleId: String
+  googleId: String,
+
+  phone: String,
+  isPhoneVerified: { type: Boolean, default: true },
+
+  dob: Date,
+  maritalStatus: {
+    type: String,
+    enum: ["Single", "Married"]
+  },
+
+  // 🔥 NEW FEATURES
+  profilePic: String,
+  isEmailVerified: { type: Boolean, default: false }
 });
 
 const jobSchema = new mongoose.Schema({
@@ -77,27 +91,27 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 },
-async (accessToken, refreshToken, profile, done) => {
+  async (accessToken, refreshToken, profile, done) => {
 
-  try {
+    try {
 
-    let user = await User.findOne({ googleId: profile.id });
+      let user = await User.findOne({ googleId: profile.id });
 
-    if (!user) {
-      user = await new User({
-        name: profile.displayName,
-        email: profile.emails[0].value,
-        googleId: profile.id
-      }).save();
+      if (!user) {
+        user = await new User({
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          googleId: profile.id
+        }).save();
+      }
+
+      return done(null, user);
+
+    } catch (err) {
+      return done(err, null);
     }
 
-    return done(null, user);
-
-  } catch (err) {
-    return done(err, null);
-  }
-
-}));
+  }));
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -138,6 +152,8 @@ function auth(req, res, next) {
 }
 
 
+
+
 app.use(async (req, res, next) => {
   const token = req.cookies.token;
 
@@ -157,6 +173,32 @@ app.use(async (req, res, next) => {
 
   next();
 });
+
+
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+function calculateProfile(user) {
+  if (!user) return 0;
+
+  let total = 5;
+  let done = 0;
+
+  if (user.name) done++;
+  if (user.phone) done++;
+  if (user.dob) done++;
+  if (user.maritalStatus) done++;
+  if (user.profilePic) done++;
+
+  return Math.floor((done / total) * 100);
+}
 
 /* ---------------- HOME ---------------- */
 
@@ -254,19 +296,19 @@ app.get("/post-job", auth, (req, res) => {
 app.post("/post-job", auth, async (req, res) => {
   const { title, company, location, salary, description, applyLink } = req.body;
 
-const finalLink = applyLink
-  ? (applyLink.startsWith("http") ? applyLink : "https://" + applyLink)
-  : "";
+  const finalLink = applyLink
+    ? (applyLink.startsWith("http") ? applyLink : "https://" + applyLink)
+    : "";
 
-await new Job({
-  title,
-  company,
-  location,
-  salary,
-  description,
-  applyLink: finalLink,
-  createdBy: req.user.id
-}).save();
+  await new Job({
+    title,
+    company,
+    location,
+    salary,
+    description,
+    applyLink: finalLink,
+    createdBy: req.user.id
+  }).save();
 
   res.redirect("/user-dashboard");
 });
@@ -320,8 +362,8 @@ app.get("/applicants/:jobId", auth, async (req, res) => {
   const applicants = await Application.find({
     jobId: req.params.jobId
   })
-  .populate("userId")
-  .populate("jobId"); // 🔥 IMPORTANT
+    .populate("userId")
+    .populate("jobId"); // 🔥 IMPORTANT
 
   res.render("applicants", { applicants, job });
 });
@@ -351,6 +393,10 @@ app.get("/user-dashboard", auth, async (req, res) => {
 
   const user = await User.findById(req.user.id);
 
+  if (!user) {
+    return res.redirect("/login"); // safety
+  }
+
   const applications = await Application.find({
     userId: req.user.id
   }).populate("jobId");
@@ -359,13 +405,15 @@ app.get("/user-dashboard", auth, async (req, res) => {
     createdBy: req.user.id
   });
 
+  const profilePercent = calculateProfile(user);
+
   res.render("user-dashboard", {
     user,
     applications,
-    myJobs
+    myJobs,
+    profilePercent
   });
 });
-
 /* ---------------- search ---------------- */
 
 app.get("/search", async (req, res) => {
@@ -423,7 +471,7 @@ app.post("/edit-job/:id", auth, async (req, res) => {
     return res.send("Not allowed");
   }
 
-  const { title, company, location, salary, description,applyLink } = req.body;
+  const { title, company, location, salary, description, applyLink } = req.body;
 
   await Job.findByIdAndUpdate(req.params.id, {
     title,
@@ -436,6 +484,50 @@ app.post("/edit-job/:id", auth, async (req, res) => {
 
   res.redirect("/user-dashboard");
 });
+
+
+/* ---------------- PROFILE PAGE ---------------- */
+
+app.get("/profile", auth, async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const profilePercent = calculateProfile(user); // ⭐ ADD THIS
+
+  res.render("profile", {
+    user,
+    query: req.query,
+     profilePercent,// ⭐ PASS TO FRONTEND
+  });
+});
+
+app.post("/upload-profile-pic", auth, upload.single("profilePic"), async (req, res) => {
+  if (!req.file) return res.send("No file");
+
+  await User.findByIdAndUpdate(req.user.id, {
+    profilePic: req.file.filename
+  });
+
+  res.redirect("/profile?updated=true");
+});
+/* ---------------- UPDATE PROFILE ---------------- */
+
+app.post("/profile", auth, async (req, res) => {
+  const { name, phone, dob, maritalStatus } = req.body;
+
+  await User.findByIdAndUpdate(req.user.id, {
+    name,
+    phone,
+    dob,
+    maritalStatus,
+    isPhoneVerified: true // ✅ always verified
+  });
+  res.redirect("/profile?updated=true");
+  
+});
+
+
+
+
 
 /* ---------------- LOGOUT ---------------- */
 
