@@ -51,9 +51,18 @@ const userSchema = new mongoose.Schema({
   isPhoneVerified: { type: Boolean, default: true },
 
   dob: Date,
-  maritalStatus: {
+ maritalStatus: {
+  type: String,
+  enum: ["Single", "Married", "Divorced", "Widowed"]
+},
+
+  gender: {
     type: String,
-    enum: ["Single", "Married"]
+    enum: ["Male", "Female", "Other"]
+  },
+  education: {
+    type: String,
+    enum: ["High School", "Diploma", "Bachelor's", "Master's", "PhD"]
   },
 
   // 🔥 NEW FEATURES
@@ -512,14 +521,16 @@ app.post("/upload-profile-pic", auth, upload.single("profilePic"), async (req, r
 /* ---------------- UPDATE PROFILE ---------------- */
 
 app.post("/profile", auth, async (req, res) => {
-  const { name, phone, dob, maritalStatus } = req.body;
+  const { name, phone, dob, maritalStatus,gender,education } = req.body;
 
   await User.findByIdAndUpdate(req.user.id, {
     name,
     phone,
     dob,
     maritalStatus,
-    isPhoneVerified: true // ✅ always verified
+    isPhoneVerified: true,
+    gender,
+    education // ✅ always verified
   });
   res.redirect("/profile?updated=true");
   
