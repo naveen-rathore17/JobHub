@@ -6,39 +6,117 @@
 <title>JobPortal</title>
 <link rel="icon" href="/images/jobhub_favicon.ico" type="image/x-icon">
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  body { font-family: 'Inter', sans-serif; }
+
+  /* Indeed/Naukri style soft shadows + transitions */
+  .job-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    border-color: #2557a7;
+  }
+
+  .nav-link {
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 2px;
+    background: #2557a7;
+    border-radius: 2px;
+    transition: width 0.25s ease;
+  }
+  .nav-link:hover::after { width: 100%; }
+  .nav-link:hover { color: #2557a7; }
+
+  .btn-primary {
+    background: #2557a7;
+    transition: all 0.2s ease;
+  }
+  .btn-primary:hover {
+    background: #1d4889;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(37,87,167,0.30);
+  }
+
+  .search-wrap {
+    transition: box-shadow 0.2s ease;
+  }
+  .search-wrap:focus-within {
+    box-shadow: 0 0 0 4px rgba(37,87,167,0.18);
+  }
+
+  .company-tile {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .company-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+  }
+
+  .step-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px rgba(15,23,42,0.08);
+  }
+
+  .pill-tag {
+    background: #eef3fc;
+    color: #2557a7;
+  }
+
+  ::selection { background: #cfe0f7; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-14px); }
+  }
+  .blob-float { animation: float 9s ease-in-out infinite; }
+</style>
 </head>
 
-<body class="bg-gray-50 overflow-x-hidden">
+<body class="bg-gradient-to-b from-[#eef3fc] via-[#f7f9fc] to-white overflow-x-hidden text-gray-800">
 
 <!-- NAVBAR -->
-<nav class="bg-white/95 backdrop-blur-lg fixed w-full z-50 border-b">
+<nav class="bg-white fixed w-full z-50 border-b border-gray-200 shadow-sm">
 <div class="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
 
-<!-- LOGO (BADA) -->
+<!-- LOGO (SAME SIZE/COLOR — UNCHANGED) -->
 <div class="flex items-center">
 <img src="/images/logo.svg" alt="JOBHUB Logo"
 class="h-16 md:h-20 w-auto object-contain">
 </div>
 
 <!-- MENU -->
-<div class="space-x-6 hidden md:flex items-center">
+<div class="space-x-7 hidden md:flex items-center">
 
-<a href="/" class="hover:text-indigo-600">Home</a>
-<a href="/jobs" class="hover:text-indigo-600">Jobs</a>
+<a href="/" class="nav-link text-sm font-semibold text-gray-600 py-1">Home</a>
+<a href="/jobs" class="nav-link text-sm font-semibold text-gray-600 py-1">Jobs</a>
 
 <% if(!user){ %>
 
-<a href="/login" class="hover:text-indigo-600">Login</a>
+<a href="/login" class="nav-link text-sm font-semibold text-gray-600 py-1">Login</a>
 
 <a href="/register"
-class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
+class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-md">
 Register
 </a>
 
 <% } else { %>
 
 <a href="/user-dashboard"
-class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition">
+class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-md">
 Account
 </a>
 
@@ -48,24 +126,24 @@ Account
 </div>
 
 <!-- MOBILE -->
-<button id="menuBtn" class="md:hidden text-2xl">☰</button>
+<button id="menuBtn" class="md:hidden text-2xl text-gray-700">☰</button>
 
 </div>
 
 <!-- MOBILE MENU -->
 <div id="mobileMenu"
-class="hidden md:hidden absolute right-6 top-20 w-64 bg-white rounded-xl shadow-lg p-4 space-y-3 text-center">
+class="hidden md:hidden absolute right-6 top-20 w-64 bg-white rounded-xl shadow-xl border border-gray-100 p-4 space-y-3 text-center">
 
-<a href="/" class="block hover:text-indigo-600">Home</a>
-<a href="/jobs" class="block hover:text-indigo-600">Jobs</a>
+<a href="/" class="block text-sm font-medium text-gray-600 hover:text-[#2557a7]">Home</a>
+<a href="/jobs" class="block text-sm font-medium text-gray-600 hover:text-[#2557a7]">Jobs</a>
 <% if(!user){ %>
 
-<a href="/login" class="block hover:text-indigo-600">Login</a>
-<a href="/register" class="block bg-indigo-600 text-white py-2 rounded-lg">Register</a>
+<a href="/login" class="block text-sm font-medium text-gray-600 hover:text-[#2557a7]">Login</a>
+<a href="/register" class="block btn-primary text-white py-2.5 rounded-md text-sm font-semibold">Register</a>
 
 <% } else { %>
 
-<a href="/user-dashboard" class="block hover:text-indigo-600">
+<a href="/user-dashboard" class="block text-sm font-medium text-gray-600 hover:text-[#2557a7]">
 Account
 </a>
 
@@ -75,51 +153,61 @@ Account
 </div>
 </nav>
 
-<!-- HERO -->
-<section class="relative text-center py-36 text-white">
+<!-- HERO (Naukri/Indeed style: clean white-blue, prominent search bar) -->
+<section class="relative pt-32 pb-16 md:pt-40 md:pb-24 bg-white/60 border-b border-gray-100 overflow-hidden">
 
-<!-- Background Image -->
-<div class="absolute inset-0">
-<img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d"
-class="w-full h-full object-cover">
-<div class="absolute inset-0 bg-indigo-900/80"></div>
-</div>
+<div class="blob-float absolute -top-20 -right-16 w-72 h-72 md:w-96 md:h-96 bg-[#2557a7]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="blob-float absolute -bottom-24 -left-20 w-64 h-64 md:w-80 md:h-80 bg-[#2557a7]/8 rounded-full blur-3xl pointer-events-none" style="animation-delay:2s"></div>
 
-<div class="relative z-10 max-w-3xl mx-auto px-6">
-<h1 class="text-4xl md:text-6xl font-bold">Find Your Dream Job</h1>
-<p class="mt-4 text-gray-200">Thousands of opportunities waiting for you</p>
+<div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+<h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+  Find the job that <span class="text-[#2557a7]">fits your life</span>
+</h1>
+<p class="mt-4 text-gray-500 text-base md:text-lg">
+  Search thousands of jobs from top companies, all in one place
+</p>
 
-<form action="/search" method="GET" class="mt-8 flex shadow-lg rounded-lg overflow-hidden">
-<input type="text" name="q" placeholder="Search jobs..."
-class="w-full px-4 py-3 text-black focus:outline-none"/>
-<button class="bg-indigo-600 px-6 font-semibold hover:bg-indigo-500">
-Search
-</button>
+<form action="/search" method="GET"
+  class="search-wrap mt-8 flex flex-col sm:flex-row bg-white border border-gray-200 rounded-lg sm:rounded-full overflow-hidden shadow-md max-w-2xl mx-auto">
+  <input type="text" name="q" placeholder="Job title, keywords, or company"
+  class="w-full px-5 py-4 text-gray-800 placeholder-gray-400 focus:outline-none"/>
+  <button class="btn-primary text-white px-8 py-4 font-semibold flex items-center justify-center gap-2">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="M21 21l-4.3-4.3"/>
+    </svg>
+    Search
+  </button>
 </form>
 
-<a href="/jobs" class="mt-6 inline-block bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
-Browse Jobs
+<a href="/jobs"
+  class="mt-6 inline-block text-[#2557a7] font-semibold text-sm hover:underline underline-offset-4">
+  or browse all jobs →
 </a>
 </div>
 </section>
 
 <!-- JOBS -->
 <section class="max-w-7xl mx-auto px-6 py-20">
-<h2 class="text-3xl font-bold text-center mb-12">Latest Opportunities</h2>
+<div class="flex items-center justify-between mb-10">
+  <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Latest Opportunities</h2>
+  <a href="/jobs" class="hidden sm:inline-block text-[#2557a7] text-sm font-semibold hover:underline underline-offset-4">View all →</a>
+</div>
 
-<div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+<div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
 <% jobs.slice(0,3).forEach(job=>{ %>
-<div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
+<div class="job-card bg-white p-6 rounded-xl border border-gray-200">
 
-<h3 class="text-lg font-semibold text-indigo-600">
+<span class="pill-tag inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3">New</span>
+
+<h3 class="text-lg font-bold text-gray-900">
 <%= job.title %>
 </h3>
 
-<p class="text-gray-700 mt-2">🏢 <%= job.company %></p>
-<p class="text-gray-500 text-sm">📍 <%= job.location %></p>
+<p class="text-gray-600 mt-2 text-sm">🏢 <%= job.company %></p>
+<p class="text-gray-400 text-sm">📍 <%= job.location %></p>
 
-<a href="/jobs/<%= job._id %>" class="inline-block mt-4 text-indigo-600 font-semibold">
+<a href="/jobs/<%= job._id %>" class="inline-flex items-center gap-1 mt-5 text-[#2557a7] font-semibold text-sm hover:underline underline-offset-4">
 View Details →
 </a>
 
@@ -130,62 +218,45 @@ View Details →
 </section>
 
 <!-- TOP COMPANIES -->
-<section class="py-20 relative overflow-hidden">
+<section class="py-20 bg-white border-y border-gray-100">
 
-<!-- Background Image -->
-<div class="absolute inset-0 -z-10">
-  <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop" 
-       class="w-full h-full object-cover opacity-40" />
-</div>
-
-<!-- Dark Overlay -->
-<div class="absolute inset-0 -z-10 bg-black/30"></div>
-
-<h2 class="text-4xl md:text-5xl font-extrabold text-center mb-14 text-yellow-300 relative z-10 
-           drop-shadow-[0_5px_20px_rgba(0,0,0,0.8)]">
-
-  TOP COMPANIES
-
-  <div class="w-20 h-1 bg-indigo-400 mx-auto mt-4 rounded-full"></div>
-
+<h2 class="text-2xl md:text-3xl font-bold text-center mb-3 text-gray-900">
+  Top Companies Hiring
 </h2>
+<p class="text-center text-gray-500 mb-12 text-sm">Trusted by leading organizations worldwide</p>
 
-<div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-6">
+<div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-6">
 
 <!-- Google -->
-<div class="group bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-gray-200 
-            flex items-center justify-center 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+<div class="company-tile bg-[#f7f9fc] p-6 rounded-xl border border-gray-200
+            flex items-center justify-center">
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" 
-       class="h-10 transition duration-300 group-hover:scale-110" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg"
+       class="h-9" />
 </div>
 
 <!-- Amazon -->
-<div class="group bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-gray-200 
-            flex items-center justify-center 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+<div class="company-tile bg-[#f7f9fc] p-6 rounded-xl border border-gray-200
+            flex items-center justify-center">
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" 
-       class="h-10 transition duration-300 group-hover:scale-110" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
+       class="h-9" />
 </div>
 
 <!-- Microsoft -->
-<div class="group bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-gray-200 
-            flex items-center justify-center 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+<div class="company-tile bg-[#f7f9fc] p-6 rounded-xl border border-gray-200
+            flex items-center justify-center">
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" 
-       class="h-10 transition duration-300 group-hover:scale-110" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
+       class="h-9" />
 </div>
 
 <!-- Infosys -->
-<div class="group bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-gray-200 
-            flex items-center justify-center 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+<div class="company-tile bg-[#f7f9fc] p-6 rounded-xl border border-gray-200
+            flex items-center justify-center">
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" 
-       class="h-10 transition duration-300 group-hover:scale-110" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg"
+       class="h-9" />
 </div>
 
 </div>
@@ -193,60 +264,55 @@ View Details →
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="py-20 relative">
+<section class="py-20">
 
-<!-- Background Glow -->
-<div class="absolute left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-indigo-400 opacity-20 blur-3xl rounded-full -z-10"></div>
-
-<h2 class="text-4xl font-bold text-center mb-14 text-gray-900">
+<h2 class="text-2xl md:text-3xl font-bold text-center mb-3 text-gray-900">
   How It Works
 </h2>
+<p class="text-center text-gray-500 mb-14 text-sm">Get hired in three simple steps</p>
 
-<div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 px-6 text-center">
+<div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-6">
 
 <!-- Step 1 -->
-<div class="group bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-md border border-gray-200 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 hover:scale-[1.03]">
+<div class="step-card bg-white p-8 rounded-xl border border-gray-200 text-center">
 
-  <div class="text-4xl mb-4 group-hover:scale-110 transition">👤</div>
+  <div class="w-12 h-12 rounded-full bg-[#eef3fc] text-[#2557a7] flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
 
-  <h3 class="font-semibold text-lg text-gray-900 group-hover:text-indigo-600 transition">
+  <h3 class="font-bold text-lg text-gray-900">
     Create Account
   </h3>
 
-  <p class="text-gray-500 mt-2">
+  <p class="text-gray-500 mt-2 text-sm">
     Sign up and build your profile
   </p>
 
 </div>
 
 <!-- Step 2 -->
-<div class="group bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-md border border-gray-200 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 hover:scale-[1.03]">
+<div class="step-card bg-white p-8 rounded-xl border border-gray-200 text-center">
 
-  <div class="text-4xl mb-4 group-hover:scale-110 transition">📄</div>
+  <div class="w-12 h-12 rounded-full bg-[#eef3fc] text-[#2557a7] flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
 
-  <h3 class="font-semibold text-lg text-gray-900 group-hover:text-indigo-600 transition">
+  <h3 class="font-bold text-lg text-gray-900">
     Upload Resume
   </h3>
 
-  <p class="text-gray-500 mt-2">
+  <p class="text-gray-500 mt-2 text-sm">
     Add your resume
   </p>
 
 </div>
 
 <!-- Step 3 -->
-<div class="group bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-md border border-gray-200 
-            hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 hover:scale-[1.03]">
+<div class="step-card bg-white p-8 rounded-xl border border-gray-200 text-center">
 
-  <div class="text-4xl mb-4 group-hover:scale-110 transition">🚀</div>
+  <div class="w-12 h-12 rounded-full bg-[#eef3fc] text-[#2557a7] flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
 
-  <h3 class="font-semibold text-lg text-gray-900 group-hover:text-indigo-600 transition">
+  <h3 class="font-bold text-lg text-gray-900">
     Apply Jobs
   </h3>
 
-  <p class="text-gray-500 mt-2">
+  <p class="text-gray-500 mt-2 text-sm">
     Start applying instantly
   </p>
 
@@ -256,43 +322,41 @@ View Details →
 
 </section>
 
-<!-- STATS (Same Indigo Background - Improved UI) -->
-<section class="bg-indigo-600 text-white py-20 text-center mt-2">
-<div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
+<!-- STATS -->
+<section class="bg-[#2557a7] text-white py-16 text-center">
+<div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10 px-6">
 
 <div>
-<h2 class="text-3xl font-bold">10K+</h2>
-<p class="text-gray-200 mt-1">Jobs Posted</p>
+<h2 class="text-3xl font-extrabold">10K+</h2>
+<p class="text-blue-100 mt-1 text-sm">Jobs Posted</p>
 </div>
 
 <div>
-<h2 class="text-3xl font-bold">5K+</h2>
-<p class="text-gray-200 mt-1">Companies</p>
+<h2 class="text-3xl font-extrabold">5K+</h2>
+<p class="text-blue-100 mt-1 text-sm">Companies</p>
 </div>
 
 <div>
-<h2 class="text-3xl font-bold">8K+</h2>
-<p class="text-gray-200 mt-1">Successful Hires</p>
+<h2 class="text-3xl font-extrabold">8K+</h2>
+<p class="text-blue-100 mt-1 text-sm">Successful Hires</p>
 </div>
 
 <div>
-<h2 class="text-3xl font-bold">20K+</h2>
-<p class="text-gray-200 mt-1">Active Users</p>
+<h2 class="text-3xl font-extrabold">20K+</h2>
+<p class="text-blue-100 mt-1 text-sm">Active Users</p>
 </div>
 
 </div>
 </section>
 
-<div class="h-16 bg-gradient-to-b from-indigo-600 to-yellow-400"></div>
+<!-- CTA -->
+<section class="bg-white text-center py-20 px-6 border-t border-gray-100">
 
-<!-- CTA (Yellow Highlight Section - More Content Added) -->
-<section class="bg-yellow-400 text-center py-20 px-6 ">
-
-<h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+<h2 class="text-2xl md:text-4xl font-extrabold text-gray-900">
 Start Your Career Journey Today 🚀
 </h2>
 
-<p class="mt-4 text-gray-800 max-w-2xl mx-auto">
+<p class="mt-4 text-gray-500 max-w-2xl mx-auto text-sm md:text-base">
 Join thousands of job seekers who found their dream jobs through our platform.
 Create your profile, upload your resume, and apply to top companies in just a few clicks.
 </p>
@@ -300,12 +364,12 @@ Create your profile, upload your resume, and apply to top companies in just a fe
 <div class="mt-8 flex flex-col md:flex-row justify-center gap-4">
 
 <a href="/register"
-class="bg-black text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition">
+class="btn-primary text-white px-8 py-3 rounded-md font-semibold">
 Create Account
 </a>
 
 <a href="/jobs"
-class="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+class="bg-white text-[#2557a7] border border-[#2557a7] px-8 py-3 rounded-md font-semibold hover:bg-[#eef3fc] transition">
 Browse Jobs
 </a>
 
@@ -314,7 +378,7 @@ Browse Jobs
 </section>
 
 
-<!-- FOOTER (Professional Multi-Column Footer) -->
+<!-- FOOTER -->
 <footer class="bg-gray-900 text-gray-400 py-12">
 <p class="text-sm text-center">
 Contact: <a href="mailto:support@jobportal.com" class="hover:text-white">support@jobportal.com</a>
